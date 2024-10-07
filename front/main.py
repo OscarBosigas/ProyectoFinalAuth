@@ -5,7 +5,7 @@ from streamlit_option_menu import option_menu
 import home, about, account
 
 st.set_page_config(
-        page_title="Pondering",
+        page_title="INVOICIFY",
 )
 
 class MultiApp:
