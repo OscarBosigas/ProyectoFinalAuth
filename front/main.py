@@ -2,7 +2,8 @@ import streamlit as st
 
 from streamlit_option_menu import option_menu
 
-import home
+import home, about
+
 st.set_page_config(
         page_title="Pondering",
 )
@@ -24,9 +25,9 @@ class MultiApp:
         # app = st.sidebar(
         with st.sidebar:        
             app = option_menu(
-                menu_title='Pondering ',
-                options=['Home','Account', 'Trending'],
-                icons=['house-fill','person-circle','trophy-fill',],
+                menu_title='INVOICIFY ',
+                options=['Cuenta','Principal', 'Analisis', 'Acerca de'],
+                icons=['person-circle','house-fill','trophy-fill','chat-fill'],
                 menu_icon='chat-text-fill',
                 default_index=1,
                 styles={
@@ -38,9 +39,10 @@ class MultiApp:
                 )
 
         
-        if app == "Home":
+        if app == "Principal":
             home.app()
-   
+        if app == "Acerca de":
+            about.app()   
                         
     run()            
          
