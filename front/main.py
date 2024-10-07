@@ -2,12 +2,11 @@ import streamlit as st
 
 from streamlit_option_menu import option_menu
 
-import home, about
+import home, about, account
 
 st.set_page_config(
         page_title="Pondering",
 )
-
 
 class MultiApp:
 
@@ -22,7 +21,6 @@ class MultiApp:
         })
 
     def run():
-        # app = st.sidebar(
         with st.sidebar:        
             app = option_menu(
                 menu_title='INVOICIFY ',
@@ -43,6 +41,9 @@ class MultiApp:
             home.app()
         if app == "Acerca de":
             about.app()   
+        if app == "Cuenta":
+            account.app()
+        
                         
     run()            
          
