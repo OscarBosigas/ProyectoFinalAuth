@@ -7,13 +7,13 @@ from firebase_admin import auth
 import firebase_admin
 from firebase_admin import credentials
 
-cred = credentials.Certificate("invoicify-b8370-firebase-adminsdk-p5sbi-d92d20e560.json")
+cred = credentials.Certificate("invoicify-b8370-firebase-adminsdk-p5sbi-aa20d05d8b.json")
 #firebase_admin.initialize_app(cred)
 
 
 def app():
 
-    st.title("Bienvenido a :violet[INVOICIFY]")
+    st.title("Bienvenido a INVOICIFY")
 
     choice = st.selectbox('Iniciar Sesión / Registrarse',['Iniciar Sesión','Registrarse'])
 

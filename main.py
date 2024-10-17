@@ -2,7 +2,7 @@ import streamlit as st
 
 from streamlit_option_menu import option_menu
 
-import home, about, account
+import home, about, account, analysis
 
 st.set_page_config(
         page_title="INVOICIFY",
@@ -43,6 +43,8 @@ class MultiApp:
             about.app()   
         if app == "Cuenta":
             account.app()
+        if app == "Analisis":
+            analysis.app()
         
                         
     run()            
