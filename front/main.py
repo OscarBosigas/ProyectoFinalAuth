@@ -4,9 +4,6 @@ from streamlit_option_menu import option_menu
 
 import home, about, account, analysis
 
-st.set_page_config(
-        page_title="INVOICIFY",
-)
 
 class MultiApp:
 
