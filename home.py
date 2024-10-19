@@ -1,9 +1,8 @@
-import altair as alt
 import pandas as pd
 import streamlit as st
+from streamlit_lightweight_charts import renderLightweightCharts
 
 def app():
-
     # Función para cargar los datos desde el archivo Excel
     def get_data():
         # Cargar datos de Excel
@@ -27,50 +26,78 @@ def app():
         
         return df_grouped
 
-    # Función para crear el gráfico
-    def get_chart(data):
-        hover = alt.selection_single(
-            fields=["Mes"],
-            nearest=True,
-            on="mouseover",
-            empty="none",
-        )
+    # Función para crear los datos de las series para el gráfico de área
+    def prepare_series_data(data):
+        # Definir un diccionario de colores para cada medio de pago
+        color_map = {
+            'Tarjeta de Crédito': 'rgba(255, 192, 0, 1)',
+            'Transferencia Bancaria': 'rgba(67, 83, 254, 1)',
+            'Efectivo': 'rgba(0, 255, 0, 1)',
+            'Otros': 'rgba(255, 0, 0, 1)'
+            # Añade más medios de pago y colores según sea necesario
+        }
+        
+        series_data = []
+        for medio_pago in data['Medios De Pago'].unique():
+            medio_pago_data = data[data['Medios De Pago'] == medio_pago]
+            series_data.append({
+                "type": 'Area',
+                "data": [{"time": row['Mes'].strftime('%Y-%m-%d'), "value": row['Valor Facturado']} for _, row in medio_pago_data.iterrows()],
+                "options": {
+                    "topColor": color_map.get(medio_pago, 'rgba(255, 255, 255, 0.7)'),  # Color por defecto blanco semi-transparente
+                    "bottomColor": color_map.get(medio_pago, 'rgba(255, 255, 255, 0.3)'),
+                    "lineColor": color_map.get(medio_pago, 'rgba(255, 255, 255, 1)'),
+                    "lineWidth": 2,
+                },
+                "markers": []  # Sin marcadores
+            })
+        return series_data
 
-        lines = (
-            alt.Chart(data, height=500, title="Valor Facturado por Medios de Pago (2023)")
-            .mark_line()
-            .encode(
-                x=alt.X("Mes:T", title="Fecha de Emisión"),
-                y=alt.Y("Valor Facturado:Q", title="Valor Facturado"),
-                color="Medios De Pago:N",
-            )
-        )
-
-        # Dibujar puntos en la línea, y resaltar según la selección
-        points = lines.transform_filter(hover).mark_circle(size=65)
-
-        # Dibujar una regla en la ubicación de la selección
-        tooltips = (
-            alt.Chart(data)
-            .mark_rule()
-            .encode(
-                x="yearmonthdate(Mes)",
-                y="Valor Facturado",
-                opacity=alt.condition(hover, alt.value(0.3), alt.value(0)),
-                tooltip=[
-                    alt.Tooltip("Mes:T", title="Fecha"),
-                    alt.Tooltip("Valor Facturado:Q", title="Valor Facturado"),
-                    alt.Tooltip("Medios De Pago:N", title="Medios de Pago"),
-                ],
-            )
-            .add_selection(hover)
-        )
-
-        return (lines + points + tooltips).interactive()
+    # Configuración del gráfico de área
+    overlaidAreaSeriesOptions = {
+        "height": 400,
+        "rightPriceScale": {
+            "scaleMargins": {
+                "top": 0.1,
+                "bottom": 0.1,
+            },
+            "mode": 0,
+            "borderColor": 'rgba(197, 203, 206, 0.4)',
+        },
+        "timeScale": {
+            "borderColor": 'rgba(197, 203, 206, 0.4)',
+        },
+        "layout": {
+            "background": {
+                "type": 'solid',
+                "color": '#100841'
+            },
+            "textColor": '#ffffff',
+        },
+        "grid": {
+            "vertLines": {
+                "color": 'rgba(197, 203, 206, 0.4)',
+                "style": 1,
+            },
+            "horzLines": {
+                "color": 'rgba(197, 203, 206, 0.4)',
+                "style": 1,
+            }
+        }
+    }
 
     # Obtener los datos y generar el gráfico
     source = get_data()
-    chart = get_chart(source)
+    series_data = prepare_series_data(source)  # Preparar datos para la gráfica
 
     # Mostrar el gráfico en Streamlit
-    st.altair_chart(chart.interactive(), use_container_width=True)
+    renderLightweightCharts([
+        {
+            "chart": overlaidAreaSeriesOptions,
+            "series": series_data
+        }
+    ], 'facturacion_por_medios_de_pago')
+
+# Ejecutar la aplicación
+if __name__ == "__main__":
+    app()
