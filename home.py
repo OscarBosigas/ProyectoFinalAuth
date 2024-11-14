@@ -62,14 +62,23 @@ def app():
     )
 
     # Filtrar los datos con base en los filtros seleccionados
-    data_filtered = data[
-        (data['Medios De Pago'].isin(medios_pago)) &
-        (data['Mes'] >= pd.to_datetime(fecha_inicio)) &
+    data_filtered = data[ 
+        (data['Medios De Pago'].isin(medios_pago)) & 
+        (data['Mes'] >= pd.to_datetime(fecha_inicio)) & 
         (data['Mes'] <= pd.to_datetime(fecha_fin))
     ]
 
     # Gráfico de burbujas (Bubble Chart)
     def get_bubble_chart(data):
+        # Asegúrate de que cada gráfico de burbujas tenga un nombre único para el hover
+        hover_bubble = alt.selection_single(
+            name="hover_bubble",  # Renombrado para evitar duplicados
+            fields=["Mes"],
+            nearest=True,
+            on="mouseover",
+            empty="none",
+        )
+
         bubble_chart = (
             alt.Chart(data, title="Frecuencia de Uso y Valor Facturado por Medios de Pago (2023)")
             .mark_circle()
@@ -85,6 +94,7 @@ def app():
                     alt.Tooltip("Valor Facturado:Q", title="Valor Facturado", format=",.2f")
                 ]
             )
+            .add_selection(hover_bubble)  # Añadir selección para hover
             .interactive()
         )
         return bubble_chart
@@ -95,7 +105,9 @@ def app():
 
     # Gráfico de líneas
     def get_line_chart(data):
-        hover = alt.selection_single(
+        # Renombramos la selección 'hover' para que tenga un nombre único
+        hover_line = alt.selection_single(
+            name="hover_line",  # Nombre único para la selección en el gráfico de líneas
             fields=["Mes"],
             nearest=True,
             on="mouseover",
@@ -113,7 +125,7 @@ def app():
         )
 
         # Dibujar puntos en la línea y resaltar según la selección
-        points = lines.transform_filter(hover).mark_circle(size=65)
+        points = lines.transform_filter(hover_line).mark_circle(size=65)
 
         # Dibujar una regla en la ubicación de la selección
         tooltips = (
@@ -122,14 +134,14 @@ def app():
             .encode(
                 x="yearmonthdate(Mes)",
                 y="Valor Facturado",
-                opacity=alt.condition(hover, alt.value(0.3), alt.value(0)),
+                opacity=alt.condition(hover_line, alt.value(0.3), alt.value(0)),
                 tooltip=[
                     alt.Tooltip("Mes:T", title="Fecha"),
                     alt.Tooltip("Valor Facturado:Q", title="Valor Facturado"),
                     alt.Tooltip("Medios De Pago:N", title="Medios de Pago"),
                 ],
             )
-            .add_selection(hover)
+            .add_selection(hover_line)
         )
 
         return (lines + points + tooltips).interactive()
@@ -141,4 +153,3 @@ def app():
     # Muestra una métrica del valor facturado total
     total_facturado = data_filtered['Valor Facturado'].sum()
     st.sidebar.subheader(f"Valor Facturado Total: ${total_facturado:,.2f}")
-
